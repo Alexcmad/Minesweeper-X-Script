@@ -1,6 +1,5 @@
 import pyautogui as pg
 import pygetwindow as pw
-import PIL
 
 try:
     window = pw.getWindowsWithTitle('Minesweeper X')[0]
@@ -20,7 +19,7 @@ gridTop = t + 101
 columns = int((width - 30) / 16)
 rows = int((height - 116) / 16)
 
-print(f"Game Size:\nRows={rows}\nColums={columns}")
+print(f"Game Size:\nRows={rows}\nColumns={columns}")
 
 # all the different things that will appear
 # non-numbers:
@@ -44,46 +43,32 @@ win = "Buttons/win.png"
 lose = "Buttons/lose.png"
 reset = "Buttons/reset.png"
 
-btnList = [unchecked, emptySpace, one, two, three, four, five, six, seven, eight, flag, mine, hitMine, wrongFlag]
-
-"""
-try:
-    leftBorder = pg.locateOnScreen("Buttons/leftBorder.png", region)
-    topBorder = pg.locateOnScreen("Buttons/topBorder.png", region)
-except TypeError:
-    print("Window not open. Try again with the window visible on the screen")
-    window.activate()
-    window.restore()
-    quit()
-"""
+numbers = [one, two, three, four, five, six, seven, eight]
+btnList = [unchecked, emptySpace, flag, mine, hitMine, wrongFlag] + numbers
 
 
-
-def cell(box, t):
+def cell(box, ty):
     left = box[0] - gridLeft
     top = box[1] - gridTop
     center = pg.center(box)
     row = top // 16
     column = left // 16
 
-
-    type = {
-        unchecked: 'U', emptySpace: 'E', one: '1', two: '2', three: '3', four: '4', five: '5',
-        six: '6', seven: '7', eight: '8', flag: 'F', mine: 'M', hitMine: 'H', wrongFlag: 'W'
+    typ = {
+        unchecked: '-', emptySpace: ' ', one: '1', two: '2', three: '3', four: '4', five: '5',
+        six: '6', seven: '7', eight: '8', flag: 'F', mine: '*', hitMine: '!', wrongFlag: 'x'
     }
 
     d = {
         "row": row,
         "column": column,
-        "type": type[t],
+        "type": typ[ty],
+        'raw': ty,
         "point": (row, column),
         "center": center
     }
 
     return d
-
-
-flagList = []
 
 
 def click(r, c, g):
@@ -105,7 +90,7 @@ def newGame():
 def scan():
     grid = []
     for x in btnList:
-        for i in pg.locateAllOnScreen(x):
+        for i in pg.locateAllOnScreen(x, confidence=0.99):
             grid.append(cell(i, x))
     return grid
 
@@ -113,39 +98,34 @@ def scan():
 def square(r, c):
     threeXthree = [(r + 1, c - 1), (r + 1, c), (r + 1, c + 1),
                    (r, c - 1), (r, c), (r, c + 1),
-                   (r - 1, c - 1),(r - 1, c), (r - 1, c + 1)]
+                   (r - 1, c - 1), (r - 1, c), (r - 1, c + 1)]
     return threeXthree
 
 
 def showGame(g):
     for x in g:
-        if x['column'] == columns-1:
+        if x['column'] == columns - 1:
             print(f" {x['type']} ")
         else:
             print(f" {x['type']} ", end='')
 
 
-def main():
-    global flagList
+def play(g):
+    for i in g:
+        r = i['row']
+        c = i['column']
+        if i['raw'] in numbers:
+            sq = square(r,c)
 
-    toprow = [i for i in flagList if i['row'] == 0]
-    # print(toprow)
+
+def main():
     grid = scan()
     game = []
     for x in grid:
-        game.append({'type': x['type'], 'row': x['row'], 'column': x['column'], 'point': x["point"]})
+        game.append({'type': x['type'], 'row': x['row'], 'column': x['column'], 'point': x["point"], 'raw':x['raw']})
     game = sorted(game, key=lambda d: d['point'])
     showGame(game)
-
-"""
-    test = [i['type'] for i in game if i['point'] in square(6, 3)]
-    for i, x in enumerate(test):
-        if i in (5, 2):
-            print(f" {x} ")
-        else:
-            print(f" {x} ", end='')
-"""
-
+    play(game)
 
 if __name__ == '__main__':
     main()
