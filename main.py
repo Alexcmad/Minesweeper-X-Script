@@ -2,7 +2,12 @@ import pyautogui as pg
 import pygetwindow as pw
 import PIL
 
-window = pw.getWindowsWithTitle('Minesweeper X')[0]
+try:
+    window = pw.getWindowsWithTitle('Minesweeper X')[0]
+except IndexError:
+    print("Game Not Running")
+    exit()
+
 width = window.width
 height = window.height
 region = window.box
@@ -10,19 +15,18 @@ region = window.box
 columns = int((width - 30) / 16)
 rows = int((height - 116) / 16)
 
+print(f"Game Size:\nRows={rows}\nColums={columns}")
+
 game = []
 for i in range (rows):
     game.append([])
     for j in range (columns):
         game[i].append([''])
 
-
 for i in range(len(game)):
     for j in range(len(game[i])):
         game[i][j]=('*')
 
-for i in game:
-    print(i)
 
 
 
@@ -52,8 +56,15 @@ six = "Buttons/six.png"
 seven = "Buttons/seven.png"
 eight = "Buttons/eight.png"
 
-leftBorder = pg.locateOnScreen("Buttons/leftBorder.png",region)
-topBorder = pg.locateOnScreen("Buttons/topBorder.png",region)
+
+try:
+    leftBorder = pg.locateOnScreen("Buttons/leftBorder.png",region)
+    topBorder = pg.locateOnScreen("Buttons/topBorder.png",region)
+except TypeError:
+    print("Window not open. Try again with the window visible on the screen")
+    window.activate()
+    window.restore()
+    quit()
 
 gridLeft = leftBorder[0]+leftBorder[2]
 gridTop = topBorder[1]+topBorder[3]
@@ -71,8 +82,10 @@ class cell:
 
 
 def main():
-    c1 = cell(pg.locateOnScreen(hitMine, region))
-    print(f"{rows} {columns}")
+    try:
+        c1 = cell(pg.locateOnScreen(unchecked,region))
+    except Exception:
+        print("Not Found")
     print(f"Top: {c1.top} Left: {c1.left} Row: {c1.row} Column: {c1.column}")
 
 
