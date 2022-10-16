@@ -11,12 +11,16 @@ except IndexError:
 width = window.width
 height = window.height
 region = window.box
+l = window.left
+t = window.top
+
+gridLeft = l + 15
+gridTop = t + 101
 
 columns = int((width - 30) / 16)
 rows = int((height - 116) / 16)
 
 print(f"Game Size:\nRows={rows}\nColums={columns}")
-
 
 # all the different things that will appear
 # non-numbers:
@@ -42,6 +46,7 @@ reset = "Buttons/reset.png"
 
 btnList = [unchecked, emptySpace, one, two, three, four, five, six, seven, eight, flag, mine, hitMine, wrongFlag]
 
+"""
 try:
     leftBorder = pg.locateOnScreen("Buttons/leftBorder.png", region)
     topBorder = pg.locateOnScreen("Buttons/topBorder.png", region)
@@ -50,9 +55,8 @@ except TypeError:
     window.activate()
     window.restore()
     quit()
+"""
 
-gridLeft = leftBorder[0] + leftBorder[2]
-gridTop = topBorder[1] + topBorder[3]
 
 
 def cell(box, t):
@@ -61,6 +65,7 @@ def cell(box, t):
     center = pg.center(box)
     row = top // 16
     column = left // 16
+
 
     type = {
         unchecked: 'U', emptySpace: 'E', one: '1', two: '2', three: '3', four: '4', five: '5',
@@ -81,9 +86,9 @@ def cell(box, t):
 flagList = []
 
 
-def click(r,c):
-    for i in scan():
-        if i["point"] == (r,c):
+def click(r, c, g):
+    for i in g:
+        if i["point"] == (r, c):
             pg.click(i["center"])
 
 
@@ -98,7 +103,6 @@ def newGame():
 
 
 def scan():
-    global grid
     grid = []
     for x in btnList:
         for i in pg.locateAllOnScreen(x):
@@ -106,14 +110,41 @@ def scan():
     return grid
 
 
+def square(r, c):
+    threeXthree = [(r + 1, c - 1), (r + 1, c), (r + 1, c + 1),
+                   (r, c - 1), (r, c), (r, c + 1),
+                   (r - 1, c - 1),(r - 1, c), (r - 1, c + 1)]
+    return threeXthree
+
+
+def showGame(g):
+    for x in g:
+        if x['column'] == columns-1:
+            print(f" {x['type']} ")
+        else:
+            print(f" {x['type']} ", end='')
+
+
 def main():
     global flagList
 
     toprow = [i for i in flagList if i['row'] == 0]
     # print(toprow)
-    game =[{'type':x['type'],'row':x['row'],'column':x['column']} for x in scan() if x['type']=='3']
-    print(game)
-    click(game[0]["row"],game[0]["column"])
+    grid = scan()
+    game = []
+    for x in grid:
+        game.append({'type': x['type'], 'row': x['row'], 'column': x['column'], 'point': x["point"]})
+    game = sorted(game, key=lambda d: d['point'])
+    showGame(game)
+
+"""
+    test = [i['type'] for i in game if i['point'] in square(6, 3)]
+    for i, x in enumerate(test):
+        if i in (5, 2):
+            print(f" {x} ")
+        else:
+            print(f" {x} ", end='')
+"""
 
 
 if __name__ == '__main__':
