@@ -71,7 +71,7 @@ def cell(box, ty):
     return d
 
 
-def click(r, c, g,b):
+def click(r, c, g, b):
     if b == 'l':
         for i in g:
             if i["point"] == (r, c):
@@ -79,7 +79,8 @@ def click(r, c, g,b):
     else:
         for i in g:
             if i["point"] == (r, c):
-                pg.click(i["center"],button='right')
+                pg.click(i["center"], button='right')
+
 
 def newGame():
     try:
@@ -134,27 +135,28 @@ def play(g):
             print(f'uCount: {len(uCount)}')
             print(f'fCount: {len(fCount)}')
 
-            if len(fCount) == v and uCount:
-                print("YESF")
-                for x in uCount:
-                    click(x["row"], x["column"], g,'l')
-                play(scan())
-            elif len(uCount)-len(fCount) == v:
+            if len(uCount) + len(fCount) == v and uCount:
                 print("YESU")
                 for x in uCount:
-                    click(x["row"], x["column"], g,'r')
+                    click(x["row"], x["column"], g, 'r')
                 play(scan())
+            elif len(fCount) == v and uCount:
+                print("YESF")
+                for x in uCount:
+                    click(x["row"], x["column"], g, 'l')
+                play(scan())
+
 
             else:
                 print("NO")
 
 
-
 def main():
+
     grid = scan()
-    game = sorted(grid, key=lambda d: d['point'])
-    #showGame(game)
-    play(game)
+    #game = sorted(grid, key=lambda d: d['point'])
+    # showGame(game)
+    play(grid)
 
 
 if __name__ == '__main__':
