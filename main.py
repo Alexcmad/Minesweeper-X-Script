@@ -67,7 +67,6 @@ def cell(box, ty):
         'raw': ty,
         "point": (row, column),
         "center": center,
-        "notClicked": True
     }
 
     return d
@@ -152,7 +151,7 @@ def play(g):
 
 
     if notFound:
-        unchecks = [x for x in g if x["raw"] == unchecked and x['notClicked']]
+        unchecks = [x for x in g if x["raw"] == unchecked]
         r = choice (unchecks)
         click(r["row"],r["column"],g,'l')
 
