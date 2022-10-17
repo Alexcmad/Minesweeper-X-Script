@@ -71,11 +71,15 @@ def cell(box, ty):
     return d
 
 
-def click(r, c, g):
-    for i in g:
-        if i["point"] == (r, c):
-            pg.click(i["center"])
-
+def click(r, c, g,b):
+    if b == 'l':
+        for i in g:
+            if i["point"] == (r, c):
+                pg.click(i["center"])
+    else:
+        for i in g:
+            if i["point"] == (r, c):
+                pg.click(i["center"],button='right')
 
 def newGame():
     try:
@@ -115,17 +119,43 @@ def play(g):
         r = i['row']
         c = i['column']
         if i['raw'] in numbers:
-            sq = square(r,c)
+            v = int(i['type'])
+            sq = square(r, c)
+            uCount = []
+            fCount = []
+
+            for j in g:
+                if j['raw'] == flag and j['point'] in sq:
+                    fCount.append(j)
+                if j['raw'] == unchecked and j['point'] in sq:
+                    uCount.append(j)
+
+            print(f'Value: {v}')
+            print(f'uCount: {len(uCount)}')
+            print(f'fCount: {len(fCount)}')
+
+            if len(fCount) == v and uCount:
+                print("YESF")
+                for x in uCount:
+                    click(x["row"], x["column"], g,'l')
+                play(scan())
+            elif len(uCount)-len(fCount) == v:
+                print("YESU")
+                for x in uCount:
+                    click(x["row"], x["column"], g,'r')
+                play(scan())
+
+            else:
+                print("NO")
+
 
 
 def main():
     grid = scan()
-    game = []
-    for x in grid:
-        game.append({'type': x['type'], 'row': x['row'], 'column': x['column'], 'point': x["point"], 'raw':x['raw']})
-    game = sorted(game, key=lambda d: d['point'])
-    showGame(game)
+    game = sorted(grid, key=lambda d: d['point'])
+    #showGame(game)
     play(game)
+
 
 if __name__ == '__main__':
     main()
