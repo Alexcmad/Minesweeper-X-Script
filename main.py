@@ -1,5 +1,6 @@
 import pyautogui as pg
 import pygetwindow as pw
+from random import choice
 
 try:
     window = pw.getWindowsWithTitle('Minesweeper X')[0]
@@ -65,7 +66,8 @@ def cell(box, ty):
         "type": typ[ty],
         'raw': ty,
         "point": (row, column),
-        "center": center
+        "center": center,
+        "notClicked": True
     }
 
     return d
@@ -113,9 +115,11 @@ def showGame(g):
             print(f" {x['type']} ")
         else:
             print(f" {x['type']} ", end='')
+    print("")
 
 
 def play(g):
+    notFound = True
     for i in g:
         r = i['row']
         c = i['column']
@@ -131,32 +135,35 @@ def play(g):
                 if j['raw'] == unchecked and j['point'] in sq:
                     uCount.append(j)
 
-            print(f'Value: {v}')
-            print(f'uCount: {len(uCount)}')
-            print(f'fCount: {len(fCount)}')
-
             if len(uCount) + len(fCount) == v and uCount:
-                print("YESU")
                 for x in uCount:
-                    click(x["row"], x["column"], g, 'r')
-                play(scan())
+                    if x['raw']!=flag:
+                        click(x["row"], x["column"], g, 'r')
+                        x['raw'] = flag
+                        x['type'] = 'F'
+                        notFound = False
+
             elif len(fCount) == v and uCount:
-                print("YESF")
                 for x in uCount:
                     click(x["row"], x["column"], g, 'l')
-                play(scan())
+                    notFound = False
 
 
-            else:
-                print("NO")
+    if notFound:
+        unchecks = [x for x in g if x["raw"] == unchecked and x['notClicked']]
+        r = choice (unchecks)
+        click(r["row"],r["column"],g,'l')
+
+
+
+    main()
+
+
 
 
 def main():
-
-    grid = scan()
-    #game = sorted(grid, key=lambda d: d['point'])
-    # showGame(game)
-    play(grid)
+    game = sorted(scan(), key=lambda d: d['point'])
+    play(game)
 
 
 if __name__ == '__main__':
