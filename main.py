@@ -92,12 +92,13 @@ def newGame():
             pg.click(win)
         except:
             pg.click(lose)
+    main()
 
 
 def scan():
     grid = []
     for x in btnList:
-        for i in pg.locateAllOnScreen(x, confidence=0.99):
+        for i in pg.locateAllOnScreen(x, confidence=0.99, region=region):
             grid.append(cell(i, x))
     return grid
 
@@ -137,32 +138,32 @@ def play(g):
 
             if len(uCount) + len(fCount) == v and uCount:
                 for x in uCount:
-                    if x['raw']!=flag:
+                    if x['raw'] != flag:
                         click(x["row"], x["column"], g, 'r')
                         x['raw'] = flag
                         x['type'] = 'F'
                         notFound = False
+                        uCount.remove(x)
 
-            elif len(fCount) == v and uCount:
+            if len(fCount) == v and uCount:
                 for x in uCount:
                     click(x["row"], x["column"], g, 'l')
                     notFound = False
 
-
     if notFound:
         unchecks = [x for x in g if x["raw"] == unchecked and x['notClicked']]
-        r = choice (unchecks)
-        click(r["row"],r["column"],g,'l')
-
-
+        r = choice(unchecks)
+        click(r["row"], r["column"], g, 'l')
 
     main()
 
 
-
-
 def main():
     game = sorted(scan(), key=lambda d: d['point'])
+    for x in game:
+        if x['type'] == '*':
+            print("Game Over")
+            newGame()
     play(game)
 
 
