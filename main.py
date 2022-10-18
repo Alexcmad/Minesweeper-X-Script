@@ -77,10 +77,14 @@ def click(r, c, g, b):
         for i in g:
             if i["point"] == (r, c):
                 pg.click(i["center"])
-    else:
+    elif b == 'r':
         for i in g:
             if i["point"] == (r, c):
                 pg.click(i["center"], button='right')
+    else:
+        for i in g:
+            if i["point"] == (r, c):
+                pg.click(i["center"], button='middle')
 
 
 def newGame():
@@ -97,7 +101,7 @@ def newGame():
 def scan():
     grid = []
     for x in btnList:
-        for i in pg.locateAllOnScreen(x, confidence=0.99, region = region):
+        for i in pg.locateAllOnScreen(x, confidence=0.95, region=region, grayscale=True):
             grid.append(cell(i, x))
     return grid
 
@@ -137,16 +141,27 @@ def play(g):
 
             if len(uCount) + len(fCount) == v and uCount:
                 for x in uCount:
-                    if x['raw']!=flag:
+                    if x['raw'] != flag:
                         click(x["row"], x["column"], g, 'r')
                         x['raw'] = flag
                         x['type'] = 'F'
                         notFound = False
                         uCount.remove(x)
+                        fCount.append(x)
+            else:
+                ot = oneTwoRule(sq)
+                if ot:
+                    click(ot['row'],ot['column'],g,'r')
+                    ot['raw'] = flag
+                    ot['type'] = 'F'
+                    notFound = False
+                    uCount.remove(ot)
+                    fCount.append(ot)
+
 
             if len(fCount) == v and uCount:
+                click(r, c, g, 'm')
                 for x in uCount:
-                    click(x["row"], x["column"], g, 'l')
                     notFound = False
                     uCount.remove(x)
 
@@ -154,22 +169,24 @@ def play(g):
     if notFound:
         unchecks = [x for x in g if x["raw"] == unchecked]
         if unchecks:
-            r = choice (unchecks)
-            click(r["row"],r["column"],g,'l')
+            r = choice(unchecks)
+            click(r["row"], r["column"], g, 'l')
+            print("Random Choice")
         else:
+            print("Game Won")
             newGame()
-
-
 
     main()
 
 
+def oneTwoRule(sq):
+    pass
 
 
 def main():
     game = sorted(scan(), key=lambda d: d['point'])
     for x in game:
-        if x["type"] in ('*','!'):
+        if x["type"] in ('*', '!'):
             print("Game Over")
             newGame()
     play(game)
