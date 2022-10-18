@@ -148,12 +148,16 @@ def play(g):
                 for x in uCount:
                     click(x["row"], x["column"], g, 'l')
                     notFound = False
+                    uCount.remove(x)
 
 
     if notFound:
         unchecks = [x for x in g if x["raw"] == unchecked]
-        r = choice (unchecks)
-        click(r["row"],r["column"],g,'l')
+        if unchecks:
+            r = choice (unchecks)
+            click(r["row"],r["column"],g,'l')
+        else:
+            newGame()
 
 
 
